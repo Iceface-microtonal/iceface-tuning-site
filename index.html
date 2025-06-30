@@ -297,9 +297,12 @@
   <div class="section">
     <h2>Iceface Tuning を体験する</h2>
     <div class="piano-player">
-      <div class="status" id="status">クリックして音を再生できます</div>
+      <div class="status" id="status">まず「音声を有効化」ボタンをタップしてください（iPhone必須）</div>
       
       <div class="controls">
+        <div class="control-group">
+          <button onclick="initAudio()" class="audio-init" id="initButton" style="background: #ff9800; font-size: 18px; padding: 15px 30px;">🔊 音声を有効化（タップ必須）</button>
+        </div>
         <div class="control-group">
           <label>音量:</label>
           <input type="range" id="volume" min="0" max="100" value="30">
@@ -311,8 +314,8 @@
           <span id="octaveValue">4</span>
         </div>
         <div class="control-group">
-          <button onclick="playDemoMelody()" class="demo-melody">デモメロディを再生</button>
-          <button onclick="stopAll()">すべて停止</button>
+          <button onclick="playDemoMelody()" class="demo-melody" disabled id="demoButton">デモメロディを再生</button>
+          <button onclick="stopAll()" disabled id="stopButton">すべて停止</button>
         </div>
       </div>
 
@@ -389,6 +392,7 @@ B -50c
     let audioContext;
     let currentNotes = new Map();
     let gainNode;
+    let isAudioInitialized = false;
 
     // Note frequencies (C4 = 261.63 Hz)
     const baseFrequencies = {
@@ -410,13 +414,34 @@ B -50c
     const centToRatio = (cents) => Math.pow(2, cents / 1200);
     const iceNoteRatio = centToRatio(50);
 
-    // Initialize audio context
+    // Initialize audio context - REQUIRED for iPhone
     function initAudio() {
-      if (!audioContext) {
+      try {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
         gainNode = audioContext.createGain();
         gainNode.connect(audioContext.destination);
         updateVolume();
+        isAudioInitialized = true;
+        
+        // Play a silent tone to unlock audio on iOS
+        const oscillator = audioContext.createOscillator();
+        const tempGain = audioContext.createGain();
+        tempGain.gain.setValueAtTime(0, audioContext.currentTime);
+        oscillator.connect(tempGain);
+        tempGain.connect(audioContext.destination);
+        oscillator.start();
+        oscillator.stop(audioContext.currentTime + 0.1);
+        
+        // Enable buttons and update UI
+        document.getElementById('demoButton').disabled = false;
+        document.getElementById('stopButton').disabled = false;
+        document.getElementById('initButton').style.display = 'none';
+        document.getElementById('status').textContent = '鍵盤をタップして音を再生できます';
+        
+        console.log('Audio initialized successfully for iOS');
+      } catch (error) {
+        console.error('Audio initialization failed:', error);
+        document.getElementById('status').textContent = 'オーディオの初期化に失敗しました。Safariブラウザをお試しください。';
       }
     }
 
@@ -474,37 +499,44 @@ B -50c
 
     // Play a note
     function playNote(note, isIce = false) {
-      initAudio();
-      
-      const octave = parseInt(document.getElementById('octave').value);
-      const baseFreq = baseFrequencies[note];
-      const octaveMultiplier = Math.pow(2, octave - 4);
-      let frequency = baseFreq * octaveMultiplier;
-      
-      if (isIce) {
-        frequency *= iceNoteRatio;
+      if (!isAudioInitialized) {
+        document.getElementById('status').textContent = 'まず「音声を有効化」ボタンをタップしてください';
+        return;
       }
       
-      const oscillator = audioContext.createOscillator();
-      const noteGain = audioContext.createGain();
-      
-      oscillator.type = 'triangle';
-      oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
-      
-      noteGain.gain.setValueAtTime(0, audioContext.currentTime);
-      noteGain.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.05);
-      
-      oscillator.connect(noteGain);
-      noteGain.connect(gainNode);
-      
-      oscillator.start();
-      
-      currentNotes.set(note, { oscillator, gainNode: noteGain });
-      
-      // Visual feedback
-      const keyElement = document.querySelector(`[data-note="${note}"]`);
-      if (keyElement) {
-        keyElement.classList.add('active');
+      try {
+        const octave = parseInt(document.getElementById('octave').value);
+        const baseFreq = baseFrequencies[note];
+        const octaveMultiplier = Math.pow(2, octave - 4);
+        let frequency = baseFreq * octaveMultiplier;
+        
+        if (isIce) {
+          frequency *= iceNoteRatio;
+        }
+        
+        const oscillator = audioContext.createOscillator();
+        const noteGain = audioContext.createGain();
+        
+        oscillator.type = 'triangle';
+        oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+        
+        noteGain.gain.setValueAtTime(0, audioContext.currentTime);
+        noteGain.gain.linearRampToValueAtTime(0.1, audioContext.currentTime + 0.05);
+        
+        oscillator.connect(noteGain);
+        noteGain.connect(gainNode);
+        
+        oscillator.start();
+        
+        currentNotes.set(note, { oscillator, gainNode: noteGain });
+        
+        // Visual feedback
+        const keyElement = document.querySelector(`[data-note="${note}"]`);
+        if (keyElement) {
+          keyElement.classList.add('active');
+        }
+      } catch (error) {
+        console.error('Error playing note:', error);
       }
     }
 
@@ -553,6 +585,11 @@ B -50c
 
     // Play demo melody
     function playDemoMelody() {
+      if (!isAudioInitialized) {
+        document.getElementById('status').textContent = 'まず「音声を有効化」ボタンをタップしてください';
+        return;
+      }
+      
       const melody = [
         { note: 'C', ice: false, duration: 500 },
         { note: 'D#', ice: true, duration: 500 },
