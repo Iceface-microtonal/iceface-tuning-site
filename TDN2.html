@@ -1,8 +1,9 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>IcefaceTDN Beat Machine</title>
 <style>
 :root {
@@ -123,6 +124,213 @@ select {
   background: var(--surface); color: var(--text-second); cursor: pointer;
 }
 .small-btn:hover { background: var(--surface-alt); }
+
+/* Mobile / iPhone optimization */
+html {
+  height: 100%;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  height: auto;
+  overflow: auto;
+  overscroll-behavior: none;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.main {
+  min-height: 0;
+}
+
+.canvas-wrap {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+#canvas {
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+button,
+select,
+input[type="range"],
+a {
+  touch-action: manipulation;
+}
+
+button,
+select,
+input[type="range"] {
+  min-height: 32px;
+}
+
+@supports (height: 100dvh) {
+  body { min-height: 100dvh; }
+}
+
+@media (max-width: 900px) {
+  body {
+    overflow: auto;
+  }
+
+  .header {
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+  }
+
+  .header h1 {
+    font-size: 12px;
+    line-height: 1.2;
+  }
+
+  .header .info {
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+    font-size: 10px;
+  }
+
+  .main {
+    flex-direction: column;
+    overflow: visible;
+  }
+
+  .canvas-wrap {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    max-height: min(54dvh, 62svh);
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .note-display {
+    top: 10px;
+    left: 12px;
+    font-size: 18px;
+  }
+
+  .start-hint {
+    font-size: 13px;
+    width: min(90%, 320px);
+    line-height: 1.35;
+  }
+
+  .sidebar {
+    width: 100%;
+    overflow: visible;
+    padding: 12px;
+    gap: 10px;
+  }
+
+  .section {
+    padding: 10px;
+    border-radius: 8px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    margin-bottom: 8px;
+  }
+
+  .row {
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .row label {
+    width: 62px;
+    font-size: 11px;
+  }
+
+  .row .val {
+    width: 46px;
+    font-size: 10px;
+  }
+
+  select {
+    font-size: 12px;
+    padding: 6px 8px;
+    min-height: 36px;
+  }
+
+  .mode-btns {
+    gap: 6px;
+  }
+
+  .mode-btn,
+  .small-btn {
+    font-size: 11px;
+    padding: 7px 10px;
+    min-height: 36px;
+  }
+
+  .controls {
+    max-height: none;
+    overflow: visible;
+    padding: 10px 12px calc(14px + env(safe-area-inset-bottom));
+  }
+
+  .drum-header {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .drum-header > span:first-child {
+    font-size: 11px !important;
+  }
+
+  .drum-header > span:last-child {
+    width: 100%;
+    margin-left: 0 !important;
+    font-size: 10px !important;
+  }
+
+  .drum-label {
+    width: 36px;
+    font-size: 10px;
+  }
+
+  .drum-cell {
+    width: min(8vw, 34px);
+    min-width: 24px;
+    height: 28px;
+    font-size: 9px;
+  }
+}
+
+@media (max-width: 560px) {
+  .header {
+    flex-direction: column;
+  }
+
+  .header .info {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .canvas-wrap {
+    max-height: min(50dvh, 54svh);
+  }
+
+  .row {
+    align-items: center;
+  }
+
+  .row label {
+    width: 58px;
+  }
+
+  .drum-cell {
+    width: min(9vw, 30px);
+    min-width: 22px;
+    height: 26px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -309,7 +517,7 @@ const GLOBAL_PRESETS = {
     dir: 'random', step: 172, speed: 44
   },
   'ACID SAW': {
-    tuning: 'Equal Temperament', scale: 'Minor', pattern: 'Lissajous 3:2', timingMode: 'tdn', base: 48, octaves: 3,
+    tuning: 'Equal (12-TET)', scale: 'Minor', pattern: 'Lissajous 3:2', timingMode: 'tdn', base: 48, octaves: 3,
     tdnN: 100, zDepth: 0, swing: 50, wave: 'sawtooth', cutoff: 100, reso: 85, reverb: 20,
     glide: 15, octave: -1, synthVol: 50, drumVol: 85, drumFilter: 100, drumPre: 'Four on Ice',
     dir: 'bounce', step: 150, speed: 70
@@ -321,7 +529,7 @@ const GLOBAL_PRESETS = {
     dir: 'up', step: 80, speed: 25
   },
   'RAW CHIP': {
-    tuning: 'Equal Temperament', scale: 'Chromatic', pattern: 'Square', timingMode: 'tdn', base: 72, octaves: 2,
+    tuning: 'Equal (12-TET)', scale: 'Chromatic', pattern: 'Square', timingMode: 'tdn', base: 72, octaves: 2,
     tdnN: 80, zDepth: 10, swing: 50, wave: 'square', cutoff: 100, reso: 0, reverb: 10,
     glide: 0, octave: 0, synthVol: 45, drumVol: 80, drumFilter: 100, drumPre: 'Default',
     dir: 'down', step: 200, speed: 110
@@ -680,6 +888,12 @@ function initAudio() {
   console.log('Audio initialized, sampleRate:', audioCtx.sampleRate);
 }
 
+['touchstart', 'pointerdown', 'click'].forEach(evt => {
+  document.addEventListener(evt, () => {
+    if (!audioCtx || audioCtx.state === 'suspended') initAudio();
+  }, { passive: true });
+});
+
 // ── Note Array ──
 function buildNoteArray() {
   const scaleIdx = val('scaleSelect');
@@ -960,6 +1174,10 @@ function resizeCanvas() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 window.addEventListener('resize', resizeCanvas);
+window.addEventListener('orientationchange', () => setTimeout(resizeCanvas, 120));
+if (window.visualViewport) {
+  visualViewport.addEventListener('resize', resizeCanvas);
+}
 resizeCanvas();
 
 function render() {
@@ -1072,6 +1290,10 @@ canvas.addEventListener('touchmove', (e) => {
   onPointerMove((t.clientX - r.left) / r.width, (t.clientY - r.top) / r.height);
 }, { passive: false });
 canvas.addEventListener('touchend', onPointerUp);
+canvas.addEventListener('touchcancel', onPointerUp);
+window.addEventListener('mouseup', onPointerUp);
+window.addEventListener('touchend', onPointerUp, { passive: true });
+window.addEventListener('touchcancel', onPointerUp, { passive: true });
 
 // ── UI Events ──
 
