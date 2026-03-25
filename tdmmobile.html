@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>TDN Beat Machine Mobile</title>
+<style>
+:root {
+  --bg: #FAF7F5;
+  --surface: #FFFFFF;
+  --surface-alt: #F0ECEB;
+  --border: #D5CFCC;
+  --text: #2A2523;
+  --text-dim: #8A8280;
+  --text-second: #6A6563;
+  --accent: #C76B6B;
+  --chord: #6B9FC7;
+  --warning: #C7A06B;
+  --active: #7BC76B;
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Mono', 'Menlo', monospace;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  user-select: none;
+}
+
+.header {
+  padding: 10px 16px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-shrink: 0;
+  z-index: 10;
+}
+.header h1 { font-size: 11px; font-weight: 900; letter-spacing: 0.5px; }
+
+.main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.canvas-wrap {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: #000;
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  flex-shrink: 0;
+}
+#canvas { width: 100%; height: 100%; display: block; }
+
+.note-display {
+  position: absolute; top: 10px; left: 10px;
+  font-size: 24px; font-weight: 900; color: var(--accent);
+  pointer-events: none;
+}
+
+.controls-wrap {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg);
+}
+
+.section {
+  padding: 10px;
+  background: var(--surface);
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+}
+.section-label { font-size: 9px; font-weight: 800; color: var(--text-dim); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.row label { font-size: 11px; font-weight: 600; width: 60px; flex-shrink: 0; }
+.row input[type="range"] { 
+  flex: 1; 
+  height: 28px; /* Larger hit area */
+  accent-color: var(--accent); 
+}
+.row .val { font-size: 10px; color: var(--text-second); width: 45px; text-align: right; font-weight: 700; font-family: monospace; }
+
+select {
+  font-family: inherit; font-size: 12px; padding: 6px 8px;
+  border: 1px solid var(--border); border-radius: 6px; background: var(--surface-alt); flex: 1;
+  height: 36px;
+}
+
+.mode-btns { display: flex; gap: 6px; flex-wrap: wrap; }
+.mode-btn {
+  font-family: inherit; font-size: 10px; font-weight: 700;
+  padding: 10px 14px; border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface-alt); color: var(--text-second); cursor: pointer; flex: 1;
+  text-align: center;
+}
+.mode-btn.active { background: var(--accent); color: white; border-color: var(--accent); }
+.mode-btn.play-btn { background: var(--active); color: white; border-color: var(--active); }
+
+/* Drum UI for mobile */
+.drum-section { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 4px; }
+.drum-grid { display: flex; flex-direction: column; gap: 4px; min-width: 480px; }
+.drum-row { display: flex; align-items: center; gap: 4px; }
+.drum-label { font-size: 10px; font-weight: 800; width: 30px; }
+.drum-cell {
+  width: 28px; height: 32px;
+  border: 1px solid var(--border); border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 800;
+}
+.drum-cell.active-k { background: var(--accent); color: white; }
+.drum-cell.active-s { background: var(--chord); color: white; }
+.drum-cell.active-h { background: var(--warning); color: white; }
+.drum-cell.current { border: 2px solid var(--active); }
+
+.start-hint {
+  position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  color: white; font-size: 14px; text-align: center; width: 80%;
+  text-shadow: 0 2px 10px rgba(0,0,0,0.5); pointer-events: none;
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>ICEFACETDN MOBILE</h1>
+  <div style="display:flex; gap:8px;">
+     <span id="bpmInfo" style="font-size:9px; font-weight:bold; color:var(--warning)">-- BPM</span>
+  </div>
+</div>
+
+<div class="main">
+  <div class="canvas-wrap">
+    <canvas id="canvas"></canvas>
+    <div class="note-display" id="noteDisplay">--</div>
+    <div class="start-hint" id="startHint">TAP & DRAG TO PLAY</div>
+  </div>
+
+  <div class="controls-wrap">
+    
+    <!-- TOP GLOBAL PRESET -->
+    <div class="section" style="background:var(--accent); border-color:var(--accent);">
+      <div class="section-label" style="color:white; opacity:0.8;">GLOBAL PRESET</div>
+      <select id="globalPreset" style="width:100%; border:none; background:rgba(255,255,255,0.2); color:white; font-weight:bold;">
+        <option value="" style="color:var(--text)">-- CUSTOM / MANUAL --</option>
+      </select>
+    </div>
+
+    <!-- TRANSPORT -->
+    <div class="section">
+      <div class="section-label">TRANSPORT & PATTERN</div>
+      <div class="mode-btns" style="margin-bottom:10px">
+        <button class="mode-btn play-btn" id="btnPlay">▶ PLAY</button>
+        <button class="mode-btn" id="btnStop" style="display:none">■ STOP</button>
+      </div>
+      <div class="row">
+        <label>Pattern</label>
+        <select id="patternSelect"></select>
+      </div>
+      <div class="row">
+        <label>Speed</label>
+        <input type="range" id="autoSpeed" min="5" max="200" value="44">
+        <span class="val" id="autoSpeedVal">44</span>
+      </div>
+    </div>
+
+    <!-- T(D,N) ARITHMETIC -->
+    <div class="section">
+      <div class="section-label">T(D,N) RELATIONAL</div>
+      <div class="mode-btns" style="margin-bottom:10px">
+        <button class="mode-btn active" id="btnTDN">T(D,N)</button>
+        <button class="mode-btn" id="btnLeap">T(D,N) LEAP</button>
+      </div>
+      <div class="row">
+        <label>N</label>
+        <input type="range" id="tdnN" min="0" max="100" value="50">
+        <span class="val" id="tdnNVal">0.50</span>
+      </div>
+      <div class="row">
+        <label>Depth</label>
+        <input type="range" id="zDepth" min="0" max="100" value="25">
+        <span class="val" id="zDepthVal">25%</span>
+      </div>
+    </div>
+
+    <!-- SYNTH ENGINE -->
+    <div class="section">
+      <div class="section-label">SYNTH ENGINE</div>
+      <div class="row">
+        <label>Wave</label>
+        <select id="waveform"></select>
+      </div>
+      <div class="row">
+        <label>Cutoff</label>
+        <input type="range" id="cutoff" min="0" max="100" value="80">
+        <span class="val" id="cutoffVal">80%</span>
+      </div>
+      <div class="row">
+        <label>Reverb</label>
+        <input type="range" id="synthReverb" min="0" max="100" value="35">
+        <span class="val" id="synthReverbVal">35%</span>
+      </div>
+    </div>
+
+    <!-- TUNING & SCALE -->
+    <div class="section">
+      <div class="section-label">SCALE & TUNING</div>
+      <div class="row">
+        <label>Scale</label>
+        <select id="scaleSelect"></select>
+      </div>
+      <div class="row">
+        <label>Tuning</label>
+        <select id="tuningSelect"></select>
+      </div>
+    </div>
+
+    <!-- DRUM MACHINE -->
+    <div class="section">
+      <div class="section-label">DRUM PATTERN</div>
+      <div class="row">
+        <select id="drumPreset"></select>
+        <button class="small-btn" id="btnRandom">RND</button>
+        <button class="small-btn" id="btnClear">CLR</button>
+      </div>
+      <div class="drum-section">
+        <div class="drum-grid" id="drumGrid"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// --- CORE LOGIC (PORTED FROM TDN2.HTML) ---
+const DIATONIC = new Set([0, 2, 4, 5, 7, 9, 11]);
+const NOTE_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+const GLOBAL_PRESETS = {
+  'ICEFACE PENTAGON': {
+    tuning: 'Iceface', scale: 'Chromatic', pattern: 'Pentagon', timingMode: 'tdn', base: 60, octaves: 2,
+    tdnN: 50, zDepth: 25, swing: 50, wave: 'sine', cutoff: 80, reso: 20, reverb: 35,
+    glide: 0, octave: 0, synthVol: 60, drumVol: 73, drumFilter: 100, drumPre: 'Default',
+    dir: 'random', step: 172, speed: 44
+  },
+  'ACID SAW': {
+    tuning: 'Equal Temperament', scale: 'Minor', pattern: 'Lissajous 3:2', timingMode: 'tdn', base: 48, octaves: 3,
+    tdnN: 100, zDepth: 0, swing: 50, wave: 'sawtooth', cutoff: 100, reso: 85, reverb: 20,
+    glide: 15, octave: -1, synthVol: 50, drumVol: 85, drumFilter: 100, drumPre: 'Four on Ice',
+    dir: 'bounce', step: 150, speed: 70
+  },
+  'GHOST AMBIENT': {
+    tuning: 'Just Intonation', scale: 'Major', pattern: 'Spiral', timingMode: 'leap', base: 60, octaves: 4,
+    tdnN: 10, zDepth: 100, swing: 50, wave: 'triangle', cutoff: 95, reso: 0, reverb: 90,
+    glide: 30, octave: 0, synthVol: 80, drumVol: 40, drumFilter: 30, drumPre: 'Ghost Drift',
+    dir: 'up', step: 80, speed: 25
+  },
+  'RAW CHIP': {
+    tuning: 'Equal Temperament', scale: 'Chromatic', pattern: 'Square', timingMode: 'tdn', base: 72, octaves: 2,
+    tdnN: 80, zDepth: 10, swing: 50, wave: 'square', cutoff: 100, reso: 0, reverb: 10,
+    glide: 0, octave: 0, synthVol: 45, drumVol: 80, drumFilter: 100, drumPre: 'Default',
+    dir: 'down', step: 200, speed: 110
+  },
+  'DEEP SUB': {
+    tuning: 'Iceface', scale: 'Minor', pattern: 'Breathing', timingMode: 'leap', base: 36, octaves: 2,
+    tdnN: 20, zDepth: 60, swing: 67, wave: 'sine', cutoff: 20, reso: 50, reverb: 50,
+    glide: 80, octave: 0, synthVol: 85, drumVol: 90, drumFilter: 60, drumPre: 'Four on Ice',
+    dir: 'random', step: 100, speed: 40
+  },
+  'COSMIC PULSE': {
+    tuning: 'Pythagorean', scale: 'Whole Tone', pattern: 'Star', timingMode: 'tdn', base: 48, octaves: 2,
+    tdnN: 90, zDepth: 15, swing: 50, wave: 'sawtooth', cutoff: 60, reso: 30, reverb: 40,
+    glide: 5, octave: 1, synthVol: 55, drumVol: 75, drumFilter: 90, drumPre: 'Asymmetry',
+    dir: 'random', step: 80, speed: 120
+  },
+  'NEON TRANCE': {
+    tuning: 'Equal (12-TET)', scale: 'Lydian', pattern: 'Figure 8', timingMode: 'tdn', base: 60, octaves: 2,
+    tdnN: 100, zDepth: 5, swing: 67, wave: 'sawtooth', cutoff: 75, reso: 40, reverb: 60,
+    glide: 20, octave: 0, synthVol: 65, drumVol: 80, drumFilter: 100, drumPre: 'Default',
+    dir: 'up', step: 120, speed: 135
+  },
+  'DARK MATTER': {
+    tuning: 'Iceface', scale: 'Diminished', pattern: 'Hypotrochoid', timingMode: 'tdn', base: 36, octaves: 3,
+    tdnN: 15, zDepth: 90, swing: 75, wave: 'sine', cutoff: 15, reso: 70, reverb: 75,
+    glide: 40, octave: -2, synthVol: 75, drumVol: 60, drumFilter: 40, drumPre: 'Asymmetry',
+    dir: 'random', step: 250, speed: 30
+  },
+  'GLITCH JUNGLE': {
+    tuning: 'Maqam Rast', scale: 'Chromatic', pattern: 'Random Walk', timingMode: 'leap', base: 48, octaves: 4,
+    tdnN: 100, zDepth: 40, swing: 50, wave: 'square', cutoff: 90, reso: 10, reverb: 25,
+    glide: 0, octave: 0, synthVol: 50, drumVol: 95, drumFilter: 100, drumPre: 'Deep Glitch',
+    dir: 'bounce', step: 180, speed: 180
+  },
+  'ZEN GARDEN': {
+    tuning: 'Just Intonation', scale: 'Major', pattern: 'Spiral', timingMode: 'leap', base: 60, octaves: 2,
+    tdnN: 5, zDepth: 100, swing: 50, wave: 'sine', cutoff: 100, reso: 0, reverb: 100,
+    glide: 10, octave: 0, synthVol: 70, drumVol: 20, drumFilter: 20, drumPre: 'Ghost Drift',
+    dir: 'up', step: 50, speed: 15
+  }
+};
+
+const SCALES = [
+  { name: 'Major',       intervals: [0,2,4,5,7,9,11] },
+  { name: 'Minor',       intervals: [0,2,3,5,7,8,10] },
+  { name: 'Chromatic',   intervals: [0,1,2,3,4,5,6,7,8,9,10,11] },
+  { name: 'Pentatonic',  intervals: [0,2,4,7,9] },
+  { name: 'Dorian',      intervals: [0,2,3,5,7,9,10] },
+  { name: 'Phrygian',    intervals: [0,1,3,5,7,8,10] },
+  { name: 'Lydian',      intervals: [0,2,4,6,7,9,11] },
+  { name: 'Whole Tone',  intervals: [0,2,4,6,8,10] },
+  { name: 'Diminished',  intervals: [0,2,3,5,6,8,9,11] },
+];
+
+const TUNINGS = [
+  { name: 'Equal (12-TET)',     cents: [0,0,0,0,0,0,0,0,0,0,0,0], iceface: false },
+  { name: 'Iceface',            cents: [0,50,0,50,0,0,50,0,50,0,50,0], iceface: true },
+  { name: 'Just Intonation',    cents: [0,11.73,3.91,15.64,-13.69,-1.96,-17.49,1.96,13.69,-15.64,-17.6,-11.73], iceface: false },
+  { name: 'Meantone 1/4',       cents: [0,-24.05,-6.84,10.26,-13.69,3.42,-20.53,-3.42,6.84,-10.26,13.69,-17.11], iceface: false },
+  { name: 'Pythagorean',        cents: [0,-9.78,3.91,-5.87,7.82,-1.96,11.73,1.96,-7.82,5.87,-3.91,9.78], iceface: false },
+  { name: 'Maqam Rast',         cents: [0,0,0,-50,0,0,0,0,0,0,-50,0], iceface: false },
+];
+
+const DRUM_PRESETS = {
+  'Default': [
+    {k:1,s:0,h:0},{k:0,s:0,h:1},{k:0,s:1,h:0},{k:0,s:0,h:1},
+    {k:1,s:0,h:1},{k:0,s:0,h:1},{k:0,s:1,h:0},{k:0,s:0,h:1},
+    {k:1,s:0,h:0},{k:0,s:0,h:1},{k:0,s:1,h:0},{k:0,s:0,h:1},
+  ],
+  'Four on Ice': [
+    {k:1,s:0,h:0},{k:0,s:0,h:0},{k:0,s:0,h:1},{k:0,s:0,h:0},
+    {k:1,s:1,h:0},{k:0,s:0,h:0},{k:0,s:0,h:1},{k:0,s:0,h:0},
+    {k:1,s:0,h:0},{k:0,s:0,h:0},{k:0,s:0,h:1},{k:0,s:0,h:0},
+    {k:1,s:1,h:0},{k:0,s:0,h:0},{k:0,s:0,h:1},{k:0,s:0,h:0},
+  ],
+  'Ghost Drift': [
+    {k:1,s:0,h:1},{k:0,s:0,h:0},{k:0,s:0,h:1},{k:0,s:0,h:1},
+    {k:0,s:1,h:0},{k:0,s:0,h:1},{k:0,s:0,h:0},{k:1,s:0,h:0},
+    {k:0,s:0,h:1},{k:0,s:0,h:0},{k:1,s:0,h:1},{k:0,s:0,h:1},
+    {k:0,s:1,h:0},{k:0,s:0,h:1},{k:0,s:0,h:0},{k:0,s:0,h:0},
+  ],
+  'Asymmetry': [
+    {k:1,s:0,h:1},{k:0,s:0,h:0},{k:0,s:0,h:0},{k:0,s:1,h:1},
+    {k:1,s:0,h:0},{k:0,s:1,h:1},{k:0,s:0,h:0},{k:0,s:0,h:1},
+    {k:1,s:1,h:0},{k:1,s:0,h:0},{k:0,s:1,h:1},{k:0,s:0,h:0},
+    {k:1,s:0,h:1},{k:1,s:1,h:0},{k:0,s:0,h:1},{k:0,s:0,h:0},
+  ],
+  'Deep Glitch': [
+    {k:1,s:1,h:0},{k:0,s:0,h:1},{k:0,s:1,h:1},{k:1,s:0,h:0},
+    {k:0,s:0,h:0},{k:1,s:0,h:1},{k:0,s:1,h:0},{k:0,s:0,h:1},
+    {k:1,s:1,h:1},{k:0,s:1,h:0},{k:0,s:0,h:1},{k:1,s:1,h:0},
+    {k:0,s:0,h:0},{k:1,s:0,h:1},{k:0,s:0,h:1},{k:0,s:1,h:1},
+  ],
+};
+
+let audioCtx = null;
+let mouseDown = false;
+let mousePos = { x: 0.5, y: 0.5 };
+let prevMousePos = null;
+let kineticAccum = 0;
+let kineticSeqIndex = 0;
+let direction = 'random';
+let bounceDir = 1;
+let timingMode = 'tdn';
+let currentNoteArray = [];
+let drumPattern = JSON.parse(JSON.stringify(DRUM_PRESETS['Default']));
+let drumStepIndex = 0;
+let hasStarted = false;
+
+let masterGain, synthGainNode, synthFilterNode, drumGainNode, drumFilterNode2, currentOsc;
+let synthReverbGain = null;
+let synthCurrentFreq = 440, synthTargetFreq = 440;
+
+let trail = [];
+let trailCounter = 0;
+const TRAIL_PALETTE = ['#F24D58','#F28D33','#F2CC33','#4DD972','#33BFE6','#6680F2','#B359E6'];
+
+function $(id) { return document.getElementById(id); }
+function val(id) { return parseInt($(id).value); }
+
+function populateSelects() {
+  const scSel = $('scaleSelect');
+  SCALES.forEach((s, i) => {
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = s.name;
+    if (s.name === 'Chromatic') opt.selected = true;
+    scSel.appendChild(opt);
+  });
+
+  const tuSel = $('tuningSelect');
+  TUNINGS.forEach((t, i) => {
+    const opt = document.createElement('option');
+    opt.value = i; opt.textContent = t.name;
+    if (t.name === 'Iceface') opt.selected = true;
+    tuSel.appendChild(opt);
+  });
+
+  const wfSel = $('waveform');
+  ['sine','triangle','square','sawtooth'].forEach(w => {
+    const opt = document.createElement('option');
+    opt.value = w; opt.textContent = w.toUpperCase();
+    wfSel.appendChild(opt);
+  });
+
+  const dpSel = $('drumPreset');
+  Object.keys(DRUM_PRESETS).forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    dpSel.appendChild(opt);
+  });
+
+  const gpSel = $('globalPreset');
+  Object.keys(GLOBAL_PRESETS).forEach(name => {
+    const opt = document.createElement('option');
+    opt.value = name; opt.textContent = name;
+    gpSel.appendChild(opt);
+  });
+  gpSel.addEventListener('change', () => {
+    if (gpSel.value) applyGlobalPreset(GLOBAL_PRESETS[gpSel.value]);
+  });
+
+  document.querySelectorAll('input, select:not(#globalPreset), .mode-btn').forEach(el => {
+    el.addEventListener('click', () => { if(el.tagName==='SELECT' || el.type==='range') $('globalPreset').value = ""; });
+    el.addEventListener('input', () => { $('globalPreset').value = ""; });
+  });
+}
+
+function applyGlobalPreset(p) {
+  Array.from($('tuningSelect').options).forEach((opt, i) => { if (opt.textContent === p.tuning) $('tuningSelect').value = i; });
+  Array.from($('scaleSelect').options).forEach((opt, i) => { if (opt.textContent === p.scale) $('scaleSelect').value = i; });
+  $('tdnN').value = p.tdnN; $('tdnN').dispatchEvent(new Event('input'));
+  $('zDepth').value = p.zDepth; $('zDepth').dispatchEvent(new Event('input'));
+  $('waveform').value = p.wave;
+  $('cutoff').value = p.cutoff; $('cutoff').dispatchEvent(new Event('input'));
+  $('synthReverb').value = p.reverb; $('synthReverb').dispatchEvent(new Event('input'));
+  $('drumPreset').value = p.drumPre; $('drumPreset').dispatchEvent(new Event('change'));
+  $('autoSpeed').value = p.speed; $('autoSpeed').dispatchEvent(new Event('input'));
+  $('patternSelect').value = p.pattern;
+  currentPatternName = p.pattern;
+  timingMode = p.timingMode;
+  $('btnTDN').classList.toggle('active', timingMode === 'tdn');
+  $('btnLeap').classList.toggle('active', timingMode === 'leap');
+  buildNoteArray();
+}
+
+function initAudio() {
+  if (audioCtx) { audioCtx.resume(); return; }
+  audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  masterGain = audioCtx.createGain();
+  masterGain.gain.value = 0.7;
+  masterGain.connect(audioCtx.destination);
+
+  synthFilterNode = audioCtx.createBiquadFilter();
+  synthFilterNode.type = 'lowpass';
+  synthGainNode = audioCtx.createGain();
+  synthGainNode.gain.value = 0;
+  synthFilterNode.connect(synthGainNode);
+  synthGainNode.connect(masterGain);
+
+  const length = audioCtx.sampleRate * 2.0;
+  const buffer = audioCtx.createBuffer(2, length, audioCtx.sampleRate);
+  for (let i = 0; i < length; i++) {
+    const d = Math.exp(-i / (audioCtx.sampleRate * 0.6));
+    buffer.getChannelData(0)[i] = (Math.random()*2-1)*d;
+    buffer.getChannelData(1)[i] = (Math.random()*2-1)*d;
+  }
+  const conv = audioCtx.createConvolver();
+  conv.buffer = buffer;
+  synthReverbGain = audioCtx.createGain();
+  synthReverbGain.gain.value = val('synthReverb')/100;
+  synthGainNode.connect(conv);
+  conv.connect(synthReverbGain);
+  synthReverbGain.connect(masterGain);
+
+  currentOsc = audioCtx.createOscillator();
+  currentOsc.type = 'sine';
+  currentOsc.connect(synthFilterNode);
+  currentOsc.start();
+
+  drumGainNode = audioCtx.createGain();
+  drumFilterNode2 = audioCtx.createBiquadFilter();
+  drumGainNode.connect(drumFilterNode2);
+  drumFilterNode2.connect(masterGain);
+
+  setInterval(() => {
+    const amt = val('glide') ? val('glide')/100 : 0.05;
+    const c = Math.exp(-0.005 / (0.002 + amt * 0.3));
+    synthCurrentFreq = synthCurrentFreq * c + synthTargetFreq * (1-c);
+    if(currentOsc) currentOsc.frequency.value = synthCurrentFreq;
+  }, 5);
+}
+
+function buildNoteArray() {
+  const scaleIdx = val('scaleSelect');
+  const baseNote = 60; 
+  const octaves = 2;
+  const intervals = SCALES[scaleIdx].intervals;
+  const notes = [];
+  for (let o = 0; o < octaves; o++) {
+    for (const iv of intervals) {
+      notes.push(baseNote + o * 12 + iv);
+    }
+  }
+  currentNoteArray = [...new Set(notes)].sort((a,b)=>a-b);
+}
+
+function playSynthNote(note, vMod=1, cMod=1) {
+  if(!audioCtx) return;
+  const pc = note % 12;
+  const tIdx = val('tuningSelect');
+  const cents = (note - 69)*100 + (TUNINGS[tIdx].cents[pc]||0);
+  synthTargetFreq = 440 * Math.pow(2, cents/1200);
+
+  const now = audioCtx.currentTime;
+  const vol = (60/100) * vMod;
+  const cut = (val('cutoff')/100) * cMod;
+  const hz = 20 + 80 * Math.pow(300, cut);
+  
+  synthFilterNode.frequency.setTargetAtTime(hz, now, 0.01);
+  synthGainNode.gain.cancelScheduledValues(now);
+  synthGainNode.gain.setValueAtTime(synthGainNode.gain.value, now);
+  synthGainNode.gain.linearRampToValueAtTime(vol*0.3, now + 0.01);
+  synthGainNode.gain.setTargetAtTime(0, now + 0.1, 0.1);
+}
+
+function playDrum(type, velocity) {
+  if(!audioCtx) return;
+  const sr = audioCtx.sampleRate;
+  const dur = type==='kick'?0.3:type==='snare'?0.2:0.05;
+  const len = Math.ceil(sr*dur);
+  const buf = audioCtx.createBuffer(1, len, sr);
+  const d = buf.getChannelData(0);
+  for(let i=0; i<len; i++) {
+    const t = i/sr;
+    if(type==='kick') d[i] = Math.sin(t*Math.PI*2*(50+100*Math.exp(-t*30))) * Math.exp(-t*15);
+    else if(type==='snare') d[i] = (Math.random()*2-1) * Math.exp(-t*20);
+    else d[i] = (Math.random()*2-1) * Math.exp(-t*100) * 0.3;
+  }
+  const s = audioCtx.createBufferSource();
+  s.buffer = buf;
+  const g = audioCtx.createGain();
+  g.gain.value = velocity * 0.5;
+  s.connect(g);
+  g.connect(drumGainNode);
+  s.start();
+}
+
+function kineticTick(dx, dy) {
+  const dist = Math.sqrt(dx*dx + dy*dy);
+  kineticAccum += dist;
+  const step = 0.172; 
+  if (kineticAccum > step) {
+    kineticAccum -= step;
+    const note = currentNoteArray[kineticSeqIndex % currentNoteArray.length];
+    kineticSeqIndex++;
+    const vMod = timingMode==='tdn' ? Math.max(0.2, 1 - dist*8) : 0.8;
+    playSynthNote(note, vMod, vMod);
+    addTrail(mousePos.x, mousePos.y, NOTE_NAMES[note%12], vMod);
+    
+    const dp = drumPattern[drumStepIndex % drumPattern.length];
+    if(dp.k) playDrum('kick', 1);
+    if(dp.s) playDrum('snare', 0.8);
+    if(dp.h) playDrum('hihat', 0.5);
+    drumStepIndex++;
+    renderDrumGrid();
+  }
+}
+
+function addTrail(x, y, note, vMod) {
+  trail.push({ x, y, note, vMod, birth: performance.now(), color: TRAIL_PALETTE[trailCounter++ % 7] });
+  if(trail.length > 50) trail.shift();
+}
+
+const canvas = $('canvas');
+const ctx = canvas.getContext('2d');
+function render() {
+  const w = canvas.width = canvas.offsetWidth;
+  const h = canvas.height = canvas.offsetHeight;
+  const now = performance.now();
+  ctx.clearRect(0,0,w,h);
+  
+  trail = trail.filter(t => (now-t.birth) < 2000);
+  for(const t of trail) {
+    const age = (now-t.birth)/2000;
+    const sz = (5 + 15*t.vMod) * (1+age);
+    ctx.globalAlpha = (1-age) * t.vMod;
+    ctx.fillStyle = t.color;
+    ctx.beginPath(); ctx.arc(t.x*w, t.y*h, sz, 0, Math.PI*2); ctx.fill();
+  }
+  
+  if(mouseDown || autoPlaying) {
+    ctx.globalAlpha = 1; ctx.fillStyle = 'white';
+    ctx.beginPath(); ctx.arc(mousePos.x*w, mousePos.y*h, 10, 0, Math.PI*2); ctx.fill();
+  }
+  requestAnimationFrame(render);
+}
+requestAnimationFrame(render);
+
+// Interaction
+const handleMove = (x, y) => {
+  if(!mouseDown) return;
+  const dx = x - prevMousePos.x, dy = y - prevMousePos.y;
+  mousePos = {x, y};
+  kineticTick(dx, dy);
+  prevMousePos = {x, y};
+};
+
+canvas.addEventListener('mousedown', e => { 
+  if(autoPlaying) stopAutoPlay();
+  const r=canvas.getBoundingClientRect(); 
+  initAudio(); mouseDown=true; 
+  mousePos = prevMousePos = {x:(e.clientX-r.left)/r.width, y:(e.clientY-r.top)/r.height};
+  if(!hasStarted){hasStarted=true; $('startHint').style.opacity='0';}
+});
+canvas.addEventListener('mousemove', e => {
+  const r=canvas.getBoundingClientRect();
+  handleMove((e.clientX-r.left)/r.width, (e.clientY-r.top)/r.height);
+});
+window.addEventListener('mouseup', () => mouseDown=false);
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  if(autoPlaying) stopAutoPlay();
+  const r=canvas.getBoundingClientRect(); initAudio(); mouseDown=true;
+  const t = e.touches[0];
+  mousePos = prevMousePos = {x:(t.clientX-r.left)/r.width, y:(t.clientY-r.top)/r.height};
+  if(!hasStarted){hasStarted=true; $('startHint').style.opacity='0';}
+}, {passive:false});
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const r=canvas.getBoundingClientRect();
+  const t = e.touches[0];
+  handleMove((t.clientX-r.left)/r.width, (t.clientY-r.top)/r.height);
+}, {passive:false});
+canvas.addEventListener('touchend', () => mouseDown=false);
+
+// Auto Play
+const GEO_PATTERNS = {
+  'Pentagon': t => {
+     const n=5, p=(t%(Math.PI*2))/(Math.PI*2)*n, i=Math.floor(p), f=p-i;
+     const a1=(i/n)*Math.PI*2-Math.PI/2, a2=((i+1)/n)*Math.PI*2-Math.PI/2;
+     return {x:0.5+0.35*(Math.cos(a1)*(1-f)+Math.cos(a2)*f), y:0.5+0.35*(Math.sin(a1)*(1-f)+Math.sin(a2)*f)};
+  },
+  'Spiral': t => {
+     const r = (t%(Math.PI*6))/(Math.PI*6)*0.4;
+     return {x:0.5+r*Math.cos(t*4), y:0.5+r*Math.sin(t*4)};
+  },
+  'Figure 8': t => ({x:0.5+0.35*Math.sin(t), y:0.5+0.35*Math.sin(2*t)}),
+  'Star': t => {
+     const n=10, p=(t%(Math.PI*2))/(Math.PI*2)*n, i=Math.floor(p), f=p-i;
+     const r1=i%2?0.15:0.4, r2=i%2?0.4:0.15;
+     const a1=(i/n)*Math.PI*2, a2=((i+1)/n)*Math.PI*2;
+     return {x:0.5+(r1*Math.cos(a1)*(1-f)+r2*Math.cos(a2)*f), y:0.5+(r1*Math.sin(a1)*(1-f)+r2*Math.sin(a2)*f)};
+  }
+};
+
+let autoLastTime = 0, autoPhase = 0, autoPlaying = false, currentPatternName = 'Pentagon';
+function autoTick() {
+  if(!autoPlaying) return;
+  const now = performance.now();
+  const dt = (now - autoLastTime)/1000;
+  autoLastTime = now;
+  autoPhase += dt * (val('autoSpeed')/60) * 2;
+  const next = GEO_PATTERNS[currentPatternName](autoPhase);
+  const dx = next.x - mousePos.x, dy = next.y - mousePos.y;
+  mousePos = next;
+  kineticTick(dx, dy);
+  requestAnimationFrame(autoTick);
+}
+
+$('btnPlay').onclick = () => {
+  initAudio(); autoPlaying=true; hasStarted=true; $('startHint').opacity='0';
+  $('btnPlay').style.display='none'; $('btnStop').style.display='block';
+  autoLastTime = performance.now(); autoTick();
+};
+$('btnStop').onclick = () => {
+  autoPlaying=false; $('btnPlay').style.display='block'; $('btnStop').style.display='none';
+};
+
+// UI Init
+const ps = $('patternSelect');
+Object.keys(GEO_PATTERNS).forEach(k => { const o=document.createElement('option'); o.value=k; o.textContent=k; ps.appendChild(o); });
+ps.onchange = () => currentPatternName = ps.value;
+
+$('btnTDN').onclick = () => { timingMode='tdn'; $('btnTDN').classList.add('active'); $('btnLeap').classList.remove('active'); };
+$('btnLeap').onclick = () => { timingMode='leap'; $('btnLeap').classList.add('active'); $('btnTDN').classList.remove('active'); };
+
+function renderDrumGrid() {
+  const g = $('drumGrid'); g.innerHTML = '';
+  ['k','s','h'].forEach(k => {
+    const r = document.createElement('div'); r.className='drum-row';
+    const l = document.createElement('div'); l.className='drum-label'; l.textContent=k.toUpperCase(); r.appendChild(l);
+    drumPattern.forEach((p, i) => {
+      const c = document.createElement('div'); c.className='drum-cell';
+      if(p[k]) c.classList.add('active-'+k);
+      if(i===(drumStepIndex-1+drumPattern.length)%drumPattern.length) c.classList.add('current');
+      c.onclick = () => { p[k]=p[k]?0:1; renderDrumGrid(); };
+      r.appendChild(c);
+    });
+    g.appendChild(r);
+  });
+}
+
+$('btnRandom').onclick = () => { drumPattern.forEach(p => { p.k=Math.random()<0.3?1:0; p.s=Math.random()<0.2?1:0; p.h=Math.random()<0.4?1:0; }); renderDrumGrid(); };
+$('btnClear').onclick = () => { drumPattern.forEach(p => { p.k=p.s=p.h=0; }); renderDrumGrid(); };
+
+// Bind sliders
+const bindSl = (id, vid, f) => { $(id).oninput = () => $(vid).textContent = f($(id).value); };
+bindSl('tdnN', 'tdnNVal', v => (v/100).toFixed(2));
+bindSl('zDepth', 'zDepthVal', v => v+'%');
+bindSl('cutoff', 'cutoffVal', v => v+'%');
+bindSl('synthReverb', 'synthReverbVal', v => { if(synthReverbGain) synthReverbGain.gain.value=v/100; return v+'%'; });
+bindSl('autoSpeed', 'autoSpeedVal', v => v);
+
+populateSelects(); buildNoteArray(); renderDrumGrid();
+</script>
+</body>
+</html>
