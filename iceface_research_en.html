@@ -1,0 +1,1193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iceface Tuning Research | Reception History and Structural Development in Contemporary Microtonal Space</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@400;700;900&display=swap');
+
+        :root {
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #111118;
+            --bg-card: #16161f;
+            --bg-card-hover: #1c1c28;
+            --accent-ice: #7ecfff;
+            --accent-ice-dim: #4a8ab0;
+            --accent-ice-glow: rgba(126, 207, 255, 0.15);
+            --accent-warm: #ff9f6c;
+            --accent-purple: #b08fff;
+            --text-primary: #e8e8f0;
+            --text-secondary: #9999aa;
+            --text-dim: #666677;
+            --border: #2a2a3a;
+            --border-light: #333345;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.85;
+            font-size: 16px;
+            overflow-x: hidden;
+        }
+
+        ::selection {
+            background: var(--accent-ice);
+            color: var(--bg-primary);
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: all 0.3s ease;
+        }
+
+        nav.scrolled {
+            background: rgba(10, 10, 15, 0.95);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .nav-logo {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent-ice);
+            letter-spacing: 0.05em;
+            text-decoration: none;
+        }
+
+        .nav-logo span {
+            color: var(--text-dim);
+            font-weight: 400;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.25rem;
+            list-style: none;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.8rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--accent-ice);
+            background: var(--accent-ice-glow);
+        }
+
+        .lang-switch {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.7rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            color: var(--text-dim);
+            text-decoration: none;
+            margin-left: 0.5rem;
+            transition: all 0.2s;
+        }
+
+        .lang-switch:hover {
+            border-color: var(--accent-ice-dim);
+            color: var(--accent-ice);
+            background: var(--accent-ice-glow) !important;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            padding: 8px;
+            background: none;
+            border: none;
+        }
+
+        .hamburger span {
+            width: 24px;
+            height: 2px;
+            background: var(--text-secondary);
+            transition: all 0.3s;
+        }
+
+        /* Hero */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 6rem 2rem 4rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(ellipse at 30% 50%, rgba(126, 207, 255, 0.06) 0%, transparent 50%),
+                        radial-gradient(ellipse at 70% 50%, rgba(176, 143, 255, 0.04) 0%, transparent 50%);
+            animation: heroGlow 15s ease-in-out infinite alternate;
+        }
+
+        @keyframes heroGlow {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            100% { transform: translate(-2%, 2%) rotate(3deg); }
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 900px;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent-ice);
+            border: 1px solid var(--accent-ice-dim);
+            padding: 0.4rem 1.2rem;
+            border-radius: 100px;
+            margin-bottom: 2rem;
+            background: var(--accent-ice-glow);
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 700;
+            line-height: 1.25;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-ice) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.05rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 3rem;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-scroll {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-dim);
+            font-size: 0.75rem;
+            letter-spacing: 0.1em;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .hero-scroll .arrow {
+            width: 1px;
+            height: 40px;
+            background: linear-gradient(to bottom, var(--accent-ice-dim), transparent);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(8px); }
+        }
+
+        /* Section Layout */
+        .section {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+        }
+
+        .section-wide {
+            max-width: 1100px;
+        }
+
+        .section-divider {
+            width: 100%;
+            max-width: 900px;
+            margin: 0 auto;
+            height: 1px;
+            background: linear-gradient(to right, transparent, var(--border), transparent);
+        }
+
+        .chapter-header {
+            margin-bottom: 3rem;
+        }
+
+        .chapter-number {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent-ice-dim);
+            margin-bottom: 0.75rem;
+        }
+
+        .chapter-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(1.5rem, 3.5vw, 2.2rem);
+            font-weight: 700;
+            line-height: 1.35;
+            color: var(--text-primary);
+        }
+
+        .chapter-title .highlight {
+            color: var(--accent-ice);
+        }
+
+        /* Typography */
+        .content p {
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            text-align: justify;
+        }
+
+        .content h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-top: 3rem;
+            margin-bottom: 1.2rem;
+            color: var(--text-primary);
+            padding-left: 1rem;
+            border-left: 3px solid var(--accent-ice);
+        }
+
+        .content h4 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            color: var(--accent-ice);
+        }
+
+        /* Blockquote */
+        .blockquote {
+            margin: 2rem 0;
+            padding: 1.5rem 2rem;
+            background: var(--bg-card);
+            border-left: 3px solid var(--accent-purple);
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.9;
+        }
+
+        .blockquote .source {
+            display: block;
+            margin-top: 0.75rem;
+            font-style: normal;
+            font-size: 0.8rem;
+            color: var(--text-dim);
+        }
+
+        /* Table */
+        .table-wrapper {
+            overflow-x: auto;
+            margin: 2rem 0;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--bg-card);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+            min-width: 650px;
+        }
+
+        thead {
+            background: rgba(126, 207, 255, 0.08);
+        }
+
+        th {
+            font-weight: 600;
+            font-size: 0.8rem;
+            letter-spacing: 0.03em;
+            color: var(--accent-ice);
+            padding: 1rem 1.2rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 0.85rem 1.2rem;
+            border-bottom: 1px solid rgba(42, 42, 58, 0.5);
+            color: var(--text-secondary);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: rgba(126, 207, 255, 0.03);
+        }
+
+        td:first-child {
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .ice-note {
+            color: var(--accent-warm);
+            font-weight: 500;
+        }
+
+        .unchanged {
+            color: var(--text-dim);
+        }
+
+        /* Artist Cards */
+        .artist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .artist-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .artist-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--accent-ice-dim);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(126, 207, 255, 0.08);
+        }
+
+        .artist-name {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--accent-ice);
+            margin-bottom: 0.3rem;
+        }
+
+        .artist-work {
+            font-size: 0.88rem;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+        }
+
+        .artist-meta {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.75rem;
+        }
+
+        .tag {
+            font-size: 0.7rem;
+            font-weight: 500;
+            padding: 0.25rem 0.6rem;
+            border-radius: 100px;
+            letter-spacing: 0.02em;
+        }
+
+        .tag-platform {
+            background: rgba(176, 143, 255, 0.15);
+            color: var(--accent-purple);
+        }
+
+        .tag-approach {
+            background: rgba(255, 159, 108, 0.15);
+            color: var(--accent-warm);
+        }
+
+        .artist-note {
+            font-size: 0.82rem;
+            color: var(--text-dim);
+            line-height: 1.6;
+        }
+
+        /* Insight Boxes */
+        .insight-box {
+            background: linear-gradient(135deg, rgba(126, 207, 255, 0.06), rgba(176, 143, 255, 0.04));
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin: 2.5rem 0;
+        }
+
+        .insight-box .label {
+            font-size: 0.7rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--accent-ice);
+            margin-bottom: 0.75rem;
+        }
+
+        .insight-box p {
+            color: var(--text-primary) !important;
+            font-size: 1rem !important;
+            line-height: 1.8;
+        }
+
+        /* Insights Grid */
+        .insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1.5rem;
+            margin: 2.5rem 0;
+        }
+
+        .insight-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .insight-item .number {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-ice);
+            opacity: 0.3;
+            margin-bottom: 0.5rem;
+        }
+
+        .insight-item h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.75rem;
+            margin-top: 0;
+        }
+
+        .insight-item p {
+            font-size: 0.85rem !important;
+            color: var(--text-secondary) !important;
+            line-height: 1.7;
+        }
+
+        /* References */
+        .references-list {
+            list-style: none;
+            counter-reset: ref;
+        }
+
+        .references-list li {
+            counter-increment: ref;
+            padding: 0.75rem 0 0.75rem 2.5rem;
+            border-bottom: 1px solid rgba(42, 42, 58, 0.3);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+            position: relative;
+        }
+
+        .references-list li::before {
+            content: counter(ref) ".";
+            position: absolute;
+            left: 0;
+            color: var(--accent-ice-dim);
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .references-list li:last-child {
+            border-bottom: none;
+        }
+
+        .references-list a {
+            color: var(--accent-ice);
+            text-decoration: none;
+            word-break: break-all;
+            transition: color 0.2s;
+        }
+
+        .references-list a:hover {
+            color: var(--accent-warm);
+            text-decoration: underline;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 3rem 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-dim);
+            font-size: 0.8rem;
+        }
+
+        footer .footer-logo {
+            font-weight: 700;
+            font-size: 1rem;
+            color: var(--accent-ice);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Back to Top */
+        .back-to-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            width: 44px;
+            height: 44px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+            z-index: 999;
+            color: var(--accent-ice);
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+
+        .back-to-top.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .back-to-top:hover {
+            background: var(--accent-ice);
+            color: var(--bg-primary);
+            border-color: var(--accent-ice);
+        }
+
+        sup {
+            font-size: 0.65em;
+            color: var(--accent-ice-dim);
+        }
+
+        /* Animations */
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-links {
+                position: fixed;
+                top: 64px;
+                left: 0;
+                right: 0;
+                background: rgba(10, 10, 15, 0.98);
+                flex-direction: column;
+                padding: 1rem;
+                border-bottom: 1px solid var(--border);
+                display: none;
+            }
+
+            .nav-links.open {
+                display: flex;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .section {
+                padding: 3rem 1.25rem;
+            }
+
+            .hero {
+                padding: 5rem 1.25rem 3rem;
+            }
+
+            .artist-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .insights-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Navigation -->
+<nav id="navbar">
+    <div class="nav-inner">
+        <a href="#top" class="nav-logo">ICEFACE TUNING <span>Research</span></a>
+        <button class="hamburger" onclick="toggleMenu()" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="#intro">Introduction</a></li>
+            <li><a href="#ch1">Ch. 1</a></li>
+            <li><a href="#ch2">Ch. 2</a></li>
+            <li><a href="#ch3">Ch. 3</a></li>
+            <li><a href="#ch4">Ch. 4</a></li>
+            <li><a href="#ch5">Ch. 5</a></li>
+            <li><a href="#ch6">Ch. 6</a></li>
+            <li><a href="#conclusion">Conclusion</a></li>
+            <li><a href="#references">References</a></li>
+            <li><a href="index.html" class="lang-switch">JP</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero" id="top">
+    <div class="hero-content">
+        <div class="hero-badge">Xenharmonic Music Research</div>
+        <h1>Reception History and Structural Development of "Iceface Tuning" in Contemporary Microtonal Space</h1>
+        <p class="hero-subtitle">A scholarly and artistic evaluation from third-party perspectives<br>A comprehensive research report on the original microtonal tuning system devised by H. Wakabayashi (Hidekazu Wakabayashi)</p>
+        <div class="hero-scroll">
+            SCROLL
+            <div class="arrow"></div>
+        </div>
+    </div>
+</header>
+
+<!-- Introduction -->
+<div class="section-divider"></div>
+<section class="section content" id="intro">
+    <div class="chapter-header fade-in">
+        <div class="chapter-number">Introduction</div>
+        <h2 class="chapter-title">The Singularity and Position of <span class="highlight">Iceface Tuning</span> in Xenharmonic Music</h2>
+    </div>
+
+    <div class="fade-in">
+        <p>In the music production landscape of the 21st century, the evolution of Digital Audio Workstations (DAWs), software synthesizers, and programming environments enabling flexible pitch control has made it unprecedentedly easy to break free from the 12-Tone Equal Temperament (12-TET) that has long dominated Western music. Through this technological liberation, microtonal and xenharmonic music has been dramatically expanding its reach from the niche domain of academic experimental musicians and contemporary music into broader internet-based composer communities, popular music, and even Electronic Dance Music (EDM).</p>
+
+        <p>The purpose of this research report is to provide a systematic theoretical and historical evaluation of "Iceface Tuning," an original microtonal tuning system devised by the Japanese composer and performer H. Wakabayashi (Hidekazu Wakabayashi). Going beyond the creator's own primary sources, this report comprehensively extracts and presents references, academic evaluations, and practical application examples from third parties (international composers, researchers, music theorists, and online producer communities) found across the internet.</p>
+
+        <div class="insight-box">
+            <div class="label">Key Perspective</div>
+            <p>The reason for adopting this approach is that whether a new music theory or tuning system achieves true universality and lasting value depends on the "history of reception and practice" &mdash; how it leaves the creator's hands, becomes a source of inspiration for other artists, and takes root as musical vocabulary while being enriched with unique interpretations and modifications.</p>
+        </div>
+
+        <p>Iceface Tuning has attracted remarkable attention from the international microtonal community through its unique aesthetic approach, rigorous structural rules, and singular origin narrative. This paper examines how this tuning system has propagated across languages and borders, and how it has been expanded by other musicians, through a multifaceted analysis encompassing music theory, psychoacoustics, and its ripple effects in the contemporary digital music ecosystem.</p>
+    </div>
+</section>
+
+<!-- Chapter 1 -->
+<div class="section-divider"></div>
+<section class="section content" id="ch1">
+    <div class="chapter-header fade-in">
+        <div class="chapter-number">Chapter 01</div>
+        <h2 class="chapter-title">The <span class="highlight">Theoretical Architecture</span> and Derivative Structures of Iceface Tuning</h2>
+    </div>
+
+    <div class="fade-in">
+        <p>Iceface Tuning is not a mere random collection of microtones or a chaotic detune, but a highly systematic tuning concept grounded in clear mathematical rules and visual/physical rules pertaining to keyboard instruments. This chapter details the fundamental structure of Iceface Tuning as confirmed by third-party sources and compositional analysis, along with the multiple variations that have derived from it.</p>
+
+        <h3>Fundamental Structure as a Subset of 24-EDO</h3>
+
+        <p>The most fundamental definition of Iceface Tuning is: "tune all sharps and flats in any key (the notes corresponding to the black keys on a standard piano keyboard layout) 50 cents (a quarter tone) higher"<sup>1</sup>. This systematically inserts intentional and regular quarter tones (referred to as "ice notes" within the community) into the standard framework of Western 12-TET<sup>3</sup>.</p>
+
+        <p>Mathematically and acoustically, this system functions as a subset of 24-EDO (24-Equal Division of the Octave) / 24-TET<sup>1</sup>. American composer Evan Bennet, with over 400,000 YouTube subscribers, has positioned this scale with precise music-theoretical accuracy in his video descriptions, stating that it is "technically a 24-TET tuning system"<sup>1</sup>.</p>
+    </div>
+
+    <div class="fade-in">
+        <h4>C Major Reference: 12-TET vs 24-EDO vs Iceface Tuning Comparison</h4>
+
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Scale Degree (C Major)</th>
+                        <th>12-TET (cents)</th>
+                        <th>24-EDO Approx.</th>
+                        <th>Iceface 50-cent</th>
+                        <th>Iceface 75-cent</th>
+                        <th>Notes / Function</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>C</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td>0</td>
+                        <td class="unchanged">Unchanged (diatonic root)</td>
+                    </tr>
+                    <tr>
+                        <td>C# / Db</td>
+                        <td>100</td>
+                        <td>150</td>
+                        <td>150 (+50)</td>
+                        <td>175 (+75)</td>
+                        <td class="ice-note">Ice note (quarter tone / microtonal leading tone)</td>
+                    </tr>
+                    <tr>
+                        <td>D</td>
+                        <td>200</td>
+                        <td>200</td>
+                        <td>200</td>
+                        <td>200</td>
+                        <td class="unchanged">Unchanged</td>
+                    </tr>
+                    <tr>
+                        <td>D# / Eb</td>
+                        <td>300</td>
+                        <td>350</td>
+                        <td>350 (+50)</td>
+                        <td>375 (+75)</td>
+                        <td class="ice-note">Ice note</td>
+                    </tr>
+                    <tr>
+                        <td>E</td>
+                        <td>400</td>
+                        <td>400</td>
+                        <td>400</td>
+                        <td>400</td>
+                        <td class="unchanged">Unchanged</td>
+                    </tr>
+                    <tr>
+                        <td>F</td>
+                        <td>500</td>
+                        <td>500</td>
+                        <td>500</td>
+                        <td>500</td>
+                        <td class="unchanged">Unchanged</td>
+                    </tr>
+                    <tr>
+                        <td>F# / Gb</td>
+                        <td>600</td>
+                        <td>650</td>
+                        <td>650 (+50)</td>
+                        <td>675 (+75)</td>
+                        <td class="ice-note">Ice note</td>
+                    </tr>
+                    <tr>
+                        <td>G</td>
+                        <td>700</td>
+                        <td>700</td>
+                        <td>700</td>
+                        <td>700</td>
+                        <td class="unchanged">Unchanged</td>
+                    </tr>
+                    <tr>
+                        <td>G# / Ab</td>
+                        <td>800</td>
+                        <td>850</td>
+                        <td>850 (+50)</td>
+                        <td>875 (+75)</td>
+                        <td class="ice-note">Ice note</td>
+                    </tr>
+                    <tr>
+                        <td>A</td>
+                        <td>900</td>
+                        <td>900</td>
+                        <td>900</td>
+                        <td>900</td>
+                        <td class="unchanged">Unchanged</td>
+                    </tr>
+                    <tr>
+                        <td>A# / Bb</td>
+                        <td>1000</td>
+                        <td>1050</td>
+                        <td>1050 (+50)</td>
+                        <td>1075 (+75)</td>
+                        <td class="ice-note">Ice note</td>
+                    </tr>
+                    <tr>
+                        <td>B</td>
+                        <td>1100</td>
+                        <td>1100</td>
+                        <td>1100</td>
+                        <td>1100</td>
+                        <td class="unchanged">Unchanged</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="fade-in">
+        <div class="insight-box">
+            <div class="label">Core Insight</div>
+            <p>The most critical music-theoretical insight is that Iceface Tuning "preserves the white-key scale (diatonic scale) completely intact." This allows performers and composers to maintain the skeletal framework and harmonic progressions of traditional tonal music, while being forced into intense microtonal alienation effects (detune and floating sensation) only at the moments when accidentals are employed. This "coexistence of tonal comfort and microtonal instability" is the greatest theoretical appeal that draws so many composers to Iceface Tuning.</p>
+        </div>
+
+        <h3>Derivative Forms and Open-Source Evolution</h3>
+
+        <p>Iceface Tuning has been received not as a single dogmatic tuning system, but as a "modular approach" to which other musicians can add their own interpretations. Several important variations have been confirmed from third-party practice.</p>
+
+        <h4>75 Cents Sharper Version</h4>
+        <p>The "75 Cents Sharper Version" shown in the table above<sup>2</sup>. While the base form involves a 50-cent (exact quarter tone) shift, this variation tunes the black keys 75 cents (three-quarters of a semitone) higher, significantly transforming the microtonal functionality. Where 50 cents tends to produce a neutral, exotic "quarter-tone sound," the 75-cent offset reduces the interval to the next note (adjacent white key) to a mere 25 cents, causing it to function as a microtonal leading tone with extremely strong gravitational pull. This minute pitch difference is intentionally used to produce psychoacoustic effects similar to chorus or doubling on specific melodic notes and harmonic tones<sup>2</sup>.</p>
+
+        <h4>Half Iceface Tuning</h4>
+        <p>An asymmetric approach called "Half Iceface Tuning." Its existence can be confirmed from its registration on "mizzan.de," the vast database site for the Scala (.scl) tuning file format that is standard in the microtonal community<sup>5</sup>. Listed under the name "wakabayashi_half," this 17-note tuning file's description states: "12-tET for left hand and Iceface for right hand"<sup>5</sup>. This approach enables the realization of advanced polytonality (multi-tonality/multi-temperament) by constructing a stable Western harmonic foundation in the lower register (left hand) while generating microtone-specific dissonance in the upper register's (right hand) melodic lines.</p>
+
+        <h4>Ice Tonality / Iceface Maqams</h4>
+        <p>Extensions incorporating non-Western musical concepts such as Arab music into "Ice Tonality" and "Iceface Maqams." The Iceface Tuning concept has evolved beyond a mere piano tuning modification into a comprehensive modal theory that attaches ice notes to all modes (e.g., Iced Lydian, Iced Mixolydian)<sup>6</sup>. In particular, "Iceface Maqam Rast," which applies the concept to the traditional Middle Eastern Maqam system, constructs an extremely complex and experimental microtonal scale where Western-derived artificial +50-cent ice notes coexist and collide with the historically preserved native -50-cent microtones of Arab music within the same scale<sup>6</sup>. This forms a cultural hybrid space where Western equal-temperament microtonal interpretation intersects with non-Western ethnic microtones.</p>
+    </div>
+</section>
+
+<!-- Chapter 2 -->
+<div class="section-divider"></div>
+<section class="section content" id="ch2">
+    <div class="chapter-header fade-in">
+        <div class="chapter-number">Chapter 02</div>
+        <h2 class="chapter-title">Academic Evaluation in <span class="highlight">Psychoacoustics</span> and Contemporary Popular Music Research</h2>
+    </div>
+
+    <div class="fade-in">
+        <p>What sets Iceface Tuning apart from many other individual tuning systems is that it has been taken up as a subject of formal academic research. In his 2019 master's thesis <em>Applying microtonality to pop songwriting: A study of microtones in pop music</em>, submitted at the University of Huddersfield in the United Kingdom, Daniel James Chadwin treats Iceface Tuning as a critically important case study of microtonal application in contemporary music<sup>4</sup>.</p>
+
+        <h3>The Structural Mechanism of "Dreamlike" and "Nostalgia"</h3>
+
+        <p>In his thesis, Chadwin surveys the background of the increasing use of microtones in popular music. He presents the context in which detuned synthesizers and sampled sound sources have become widespread in contemporary electronica subgenres such as lo-fi jazzhop and vaporwave, as seen in the works of Saba, Stephen James Taylor, and Joey Pecoraro<sup>4</sup>. He also references the influence of subtle detune and pitch-shifting employed by masters of IDM (Intelligent Dance Music) and ambient music such as Aphex Twin and Boards of Canada<sup>4</sup>.</p>
+
+        <div class="blockquote">
+            "H. Wakabayashi's tracks use the 'Iceface' tuning that he developed himself. It involves raising the black keys of the keyboard by 50 cents, incorporating quarter tones into the 12-note octave, creating additional 'ice' notes. The effect is dreamlike and nostalgic. The notes clearly sound 'out of tune' while also never quite sounding chromatic. This tuning is not entirely dissimilar to Stephen James Taylor's 'Quantum 7' (2015)."
+            <span class="source">&mdash; Daniel James Chadwin, Master's Thesis (2019)<sup>4</sup></span>
+        </div>
+
+        <p>The deeper insight derived from Chadwin's academic observation is profoundly significant. Typically, the production of "nostalgia" in contemporary popular and lo-fi music is achieved through "random, continuous pitch modulation" such as the pitch fluctuations (wow and flutter) from analog tape rotation irregularities, or chorus-like effects. However, Iceface Tuning produces "structural nostalgia" that does not rely on randomness, by mathematically placing "fixed, precise quarter-tone offsets (+50 cents)."</p>
+
+        <h3>Cognitive Dissonance and the Tonal Anchor</h3>
+
+        <p>Furthermore, Chadwin's observation that "the notes clearly sound out of tune while also never quite sounding chromatic" brilliantly captures the psychoacoustic cognitive process that Iceface Tuning triggers<sup>4</sup>. When all black keys are shifted +50 cents, the conventional "semitone (100-cent) grid" of Western 12-TET collapses, and non-traditional interval gaps of 150 cents and 50 cents regularly emerge.</p>
+
+        <p>This triggers complex processing in the listener's brain. While diatonic white-key melodies play, the listener maintains a strong cognitive anchor of "listening to stable tonal music." However, at the moment an accidental (a former black key) intervenes, that anchor is stripped away by a quarter tone, and the listener is pulled into a psychoacoustic illusion of having drifted from real tonal space &mdash; what Chadwin calls a "dreamlike" state. While completely atonal music pushes the listener away entirely, Iceface Tuning maintains tonal gravity while allowing the listener to peer into the microtonal abyss, giving it a unique emotional appeal. Chadwin's placement of this tuning alongside the work of world-class microtonal practitioner Stephen James Taylor demonstrates the academic validity and avant-garde nature of Iceface Tuning<sup>4</sup>.</p>
+    </div>
+</section>
+
+<!-- Chapter 3 -->
+<div class="section-divider"></div>
+<section class="section content" id="ch3">
+    <div class="chapter-header fade-in">
+        <div class="chapter-number">Chapter 03</div>
+        <h2 class="chapter-title">Construction of <span class="highlight">Mythical Narrative</span> and Propagation Mechanisms in the Community</h2>
+    </div>
+
+    <div class="fade-in">
+        <p>Behind Iceface Tuning's privileged and widespread recognition in the online microtonal and xenharmonic community lies not only the excellence of its mathematical and acoustic structure, but also the significant contribution of a "mythical narrative (origin story)" surrounding its birth. This narrative has become a recurring cultural motif in third-party references and music podcasts, making it an indispensable element for understanding the propagation mechanisms of music theory in online communities.</p>
+
+        <h3>Sevish's Introduction of the "Dream Revelation"</h3>
+
+        <p>Sevish, a prominent UK-based microtonal electronic producer and key figure in the contemporary xenharmonic scene, singled out Iceface Tuning in his blog post "9 Alternative Tunings NOT for Guitar," highlighting it from among numerous complex microtonal tuning systems<sup>7</sup>. This reference served as an extremely powerful catalyst for Iceface Tuning gaining international recognition.</p>
+
+        <p>In the same article, rather than merely listing cent values, Sevish engages in poetic storytelling about the origins of Iceface Tuning: "As the legend goes, pianist Hidekazu Wakabayashi saw a woman in his dream. The piano she was playing was somehow different. Each black key was tuned a quarter tone higher. And that's how he discovered Iceface"<sup>7</sup>.</p>
+
+        <p>Sevish further states: "Honestly, Iceface sounds as dreamy as its origin story," praising the complete unity and integration of this tuning system's mathematical structure, auditory impression, and origin story<sup>7</sup>. In the xenharmonic community, where music theory and microtonal research often devolve into dry mathematical discussions and cent value calculations, a tuning system with such an intuitive, revelatory origin (a vision from a dream) stands out brilliantly, and this is thought to have been a key factor in stimulating the imagination and romanticism of many artists.</p>
+
+        <h3>Establishment of "Legendary" Status on the "Now&Xen" Podcast</h3>
+
+        <p>This narrative has further spread and taken root through audio media. Iceface Tuning has also been treated as a significant topic on "Now&Xen," the major podcast specializing in contemporary microtonal and xenharmonic music, hosted by Sevish and Stephen Weigel<sup>8</sup>.</p>
+
+        <p>In Episode 041, "Hidekazu Wakabayashi," aired on June 30, 2020, the show invited Wakabayashi himself as a guest to discuss a wide range of musical topics<sup>8</sup>. The official episode description lists as discussion highlights, alongside distinctive topics such as "traditional music, cover songs, brown note, recycling," the fact that they discussed "the legendary 'Iceface tuning' from his dreams"<sup>8</sup>.</p>
+
+        <p>What is particularly noteworthy here is that the third-party podcast hosts intentionally used the modifier "legendary" in their official text<sup>8</sup>. This suggests that within the community, the origin story of Iceface Tuning has already solidified as a firm mythos, functioning as a shared language for conveying context. In non-centralized online music communities, concepts with meme-like, mythical intensity penetrate far faster and deeper than mere numerical data &mdash; a fact brilliantly demonstrated by this case in contemporary digital music ecology.</p>
+
+        <p>Furthermore, in his own interview articles, Sevish has strongly recommended Wakabayashi's blog "Microtonal Diary" as an essential and valuable resource for Japanese musicians learning about microtones and for international microtonal researchers studying Japanese, praising his contribution to the community as the discoverer of Iceface Tuning<sup>10</sup>.</p>
+    </div>
+</section>
+
+<!-- Chapter 4 -->
+<div class="section-divider"></div>
+<section class="section section-wide content" id="ch4">
+    <div class="chapter-header fade-in">
+        <div class="chapter-number">Chapter 04</div>
+        <h2 class="chapter-title"><span class="highlight">Practical Applications</span> and Compositional Analysis by Third-Party Artists</h2>
+    </div>
+
+    <div class="fade-in">
+        <p>Iceface Tuning has not remained merely a theoretical proposal or mythical concept; it has been performed by numerous third-party artists and released as compositions on various platforms. This is definitive proof that this system possesses high practical utility in composition and strong musical appeal that inspires the creative impulses of other artists.</p>
+
+        <div class="artist-grid">
+            <div class="artist-card">
+                <div class="artist-name">Evan Bennet</div>
+                <div class="artist-work">Microtonal Moment Musicale 4: Iceface tuning</div>
+                <div class="artist-meta">
+                    <span class="tag tag-platform">YouTube</span>
+                    <span class="tag tag-approach">Acoustic miniature</span>
+                </div>
+                <div class="artist-note">Introduced as a 24-TET system<sup>1</sup></div>
+            </div>
+            <div class="artist-card">
+                <div class="artist-name">Evan Bennet</div>
+                <div class="artist-work">Rabbit Dissonance (4-17-22)</div>
+                <div class="artist-meta">
+                    <span class="tag tag-platform">YouTube</span>
+                    <span class="tag tag-approach">Altered Iceface Tuning</span>
+                </div>
+                <div class="artist-note">Unique interpretation keeping F# unaltered<sup>13</sup></div>
+            </div>
+            <div class="artist-card">
+                <div class="artist-name">Patrick Bartmess</div>
+                <div class="artist-work">rainoi-iceface-tuning</div>
+                <div class="artist-meta">
+                    <span class="tag tag-platform">Audius</span>
+                    <span class="tag tag-approach">Electronic / Tender</span>
+                </div>
+                <div class="artist-note">Inverse interpretation: all flats and sharps at -50 cents<sup>15</sup></div>
+            </div>
+            <div class="artist-card">
+                <div class="artist-name">Hidemi Akaiwa</div>
+                <div class="artist-work">Hidemi Akaiwa plays Iceface Tuning!</div>
+                <div class="artist-meta">
+                    <span class="tag tag-platform">YouTube</span>
+                    <span class="tag tag-approach">Jazz approach / Live performance</span>
+                </div>
+                <div class="artist-note">Acoustic piano (MIDI) improvisation<sup>16</sup></div>
+            </div>
+        </div>
+
+        <h3>Evan Bennet's "Altered Iceface Tuning": A Sophisticated Harmonic Hack</h3>
+
+        <p>Evan Bennet, who runs the YouTube channel "AnAmericanComposer" with over 400,000 subscribers, deeply understands the potential of Iceface Tuning and has released multiple experimental works employing it<sup>13</sup>.</p>
+
+        <p>In his piece "Microtonal Moment Musicale 4: Iceface tuning," Bennet introduces it in his video description as "this beautiful scale, invented by the Japanese composer H. Wakabayashi, featured on this channel about 2 years ago"<sup>1</sup>. However, Bennet's true musical contribution lies in his unique modification (hacking) in the subsequent piece "Rabbit Dissonance (4-17-22) &mdash; Altered Iceface tuning"<sup>13</sup>.</p>
+
+        <p>In this composition, Bennet applies Iceface's basic concept (shifting black keys by a quarter tone) while explicitly noting that he made a highly intentional modification: "keeping F# (F-sharp) intact"<sup>14</sup>. The scale he presents is: "C, C^ (half-sharp), D, D^, E, F, F#, G, G^, A, A^, B"<sup>14</sup>.</p>
+
+        <div class="insight-box">
+            <div class="label">Harmonic Insight</div>
+            <p>This choice to "preserve F#" holds profoundly deep meaning in harmonic theory. F# is the exact tritone (augmented 4th / diminished 5th) relative to the tonic C, the single most important interval at the core of dominant motion (resolution from dominant to tonic) in Western music. If F# were shifted +50 cents according to Iceface's rules, this tritone tension would be transformed into a qualitatively different microtonal sonority. By preserving the intentional symmetry and resolution energy of this "perfect tritone" in Western music, Bennet arrested the complete collapse of tonality at a specific point. This is a crucial example demonstrating that Iceface Tuning functions not as a rigid, absolute rule, but as an "open-source tool" that can be restructured and optimized according to other composers' harmonic requirements.</p>
+        </div>
+
+        <h3>Expansion into Electronic Platforms and Jazz Improvisation</h3>
+
+        <p>The practical utility of Iceface Tuning extends beyond the domain of academic contemporary music into various genres.</p>
+
+        <p>On Audius, the decentralized music streaming platform, artist Patrick Bartmess has released a track titled "rainoi-iceface-tuning"<sup>15</sup>. In his track description, he explains it as "a song written using the original Iceface tuning, detuning all flats and sharps by -50 cents"<sup>15</sup>. Notably, while Wakabayashi's original concept is "+50 cents (raise)," Bartmess adopts the inverse approach of "-50 cents (lower)"<sup>3</sup>. The genre tags include "Electronic" and "Tender"<sup>15</sup>, demonstrating that even in the context of ambient, synthesizer-centered electronic music, the Iceface Tuning concept (microtonal alteration of black keys only) is effective as a means of expressing softness and emotionality (tender).</p>
+
+        <p>Additionally, in the context of exploring microtones in jazz ("Searching for microtonal jazz"<sup>17</sup>), pianist Hidemi Akaiwa has released a performance video of actually playing Iceface Tuning on keyboard<sup>16</sup>. Wakabayashi himself participates on drums in this video<sup>16</sup>, suggesting that Iceface Tuning provides sufficient musical and physical vocabulary to support not only precise DAW sequencer programming but also jazz-style improvisation through real-time human physical reactions. The quality of using standard piano fingering while only the resulting sound is microtonally transformed has become a new source of inspiration for improvisers.</p>
+    </div>
+</section>
+
+<!-- Chapter 5 -->
+<div class="section-divider"></div>
+<section class="section content" id="ch5">
+    <div class="chapter-header fade-in">
+        <div class="chapter-number">Chapter 05</div>
+        <h2 class="chapter-title">Technical Integration in <span class="highlight">Digital Infrastructure</span> and Community Endorsement</h2>
+    </div>
+
+    <div class="fade-in">
+        <p>In contemporary digital music production, whether a new tuning system ends up as mere desk theory or becomes widely established depends heavily on "compatibility" and "accessibility" in the digital infrastructure of DAWs and software synthesizers. It can be confirmed that Iceface Tuning has penetrated deep into this infrastructure through open online sharing systems.</p>
+
+        <h3>Archival in the Scala File Database</h3>
+
+        <p>The "Scala (.scl)" format has become the global standard tuning file format in the microtonal community. All advanced software synthesizers can realize custom tunings by loading Scala files. In "mizzan.de," the vast Scala file archive database, Iceface Tuning's file has been formally registered and made publicly available among more than 5,104 historical and experimental tuning files<sup>5</sup>.</p>
+
+        <p>As mentioned in previous chapters, it is listed under the name "wakabayashi_half" as the 17-note "Hidekazu Wakabayashi Half Iceface Tuning"<sup>5</sup>. The fact that this file is hosted on an open database accessible to anyone carries profound significance. It means that Iceface Tuning has transcended the realm of personal experimentation and has been archived as a "public musical asset" that EDM producers and film composers worldwide can drag and drop into their synthesizers (Serum, Omnisphere, Kontakt, etc.) for immediate use.</p>
+
+        <h3>Discussion and Endorsement by Electronic Music Producers on Reddit</h3>
+
+        <p>In the Reddit community "r/edmproduction," one of the largest hubs for electronic music production information exchange, Iceface Tuning has been mentioned as a practical tuning in a discussion thread titled "Microtonal synthesis"<sup>18</sup>.</p>
+
+        <p>In this thread, when a user was searching for easy-to-use synthesizers supporting microtones, user "yellowmix" listed notable synthesizers including Alchemy, Harmor, Kontakt, Omnisphere, and Serum, then explained that "Addictive Keys (a well-known piano plugin) doesn't accept external Scala tuning, but comes with many pre-loaded piano tuning sets," and in that context specifically recommended: "Check out Iceface tuning"<sup>18</sup>.</p>
+
+        <p>Furthermore, in a separate thread on Reddit's "r/microtonal" community titled "Not enough different genres in microtonal music?," the topic of microtones in electronic music is also discussed<sup>19</sup>. User "illenial999" cites "iceface" alongside "29edo" as specific examples of "deliberately precise microtonal systems" that characterize contemporary electronic music<sup>19</sup>.</p>
+
+        <p>These spontaneous references in these massive forums demonstrate that the term "Iceface Tuning" has deeply permeated among producers ranging from underground to mainstream as a kind of "proper noun" or "standard microtonal system" that requires no explanation of its structure to be understood.</p>
+    </div>
+</section>
+
+<!-- Chapter 6 -->
+<div class="section-divider"></div>
+<section class="section content" id="ch6">
+    <div class="chapter-header fade-in">
+        <div class="chapter-number">Chapter 06</div>
+        <h2 class="chapter-title">Comprehensive Insights and the <span class="highlight">Paradigm Shift</span> in Music Theory Brought by Iceface Tuning</h2>
+    </div>
+
+    <div class="fade-in">
+        <p>From the integration and analysis of these multifaceted third-party sources, a profound insight emerges: Iceface Tuning is not merely an "eccentric tuning" but something that brings a clear paradigm shift to contemporary music theory and the production environment.</p>
+
+        <div class="insights-grid">
+            <div class="insight-item">
+                <div class="number">01</div>
+                <h4>Elimination of Enharmonic Equivalence and Redefinition of Scale Irreversibility</h4>
+                <p>Iceface Tuning has redefined the "elimination of enharmonic equivalence and the irreversibility of scales" on keyboard instruments. In standard 12-TET, C# and Db have the exact same pitch. However, in this system where sharps and flats shift by a quarter tone &mdash; as demonstrated by Patrick Bartmess's -50-cent interpretation &mdash; whether a note is perceived as "a sharp from C (ascending)" or "a flat from D (descending)" completely splits the acoustic destination. This possesses the powerful function of re-recognizing, in the digital environment, "the inherent vector (directional gravity) of each note" that had long been forgotten since the spread of equal temperament.</p>
+            </div>
+            <div class="insight-item">
+                <div class="number">02</div>
+                <h4>A Hybrid Coexistence Space of Tonality and Atonality</h4>
+                <p>Iceface Tuning has provided an entirely new compositional interface: "a hybrid space where tonality and atonality coexist." As Chadwin's thesis suggests, the complete tonality of white keys (diatonic) and the microtonal atonality of black keys (accidentals) coexist on a single keyboard. Unlike the "total immersion in an alien sonic world" imposed by complete 24-TET or 31-TET, this enables seamless movement between "tonal comfort" and "microtonal instability (nostalgia and dream-state)" through a single finger choice &mdash; an extremely practical and excellent design philosophy.</p>
+            </div>
+            <div class="insight-item">
+                <div class="number">03</div>
+                <h4>"Myth-Driven" Acoustic Propagation Model</h4>
+                <p>A successful example of a "myth-driven" acoustic propagation model in online communities. The origin narrative of "seeing a woman playing a quarter-tone-higher piano in a dream" functioned as a powerful meme for intuitively sharing complex mathematical parameters. Through influential curators like Sevish and Stephen Weigel retelling this myth on podcasts and blogs, Iceface Tuning was elevated from mere numerical data into "a special tuning system backed by inspiration and romance," ultimately succeeding in drawing in composers like Evan Bennet with hundreds of thousands of followers.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Conclusion -->
+<div class="section-divider"></div>
+<section class="section content" id="conclusion">
+    <div class="chapter-header fade-in">
+        <div class="chapter-number">Conclusion</div>
+        <h2 class="chapter-title">Conclusion</h2>
+    </div>
+
+    <div class="fade-in">
+        <p>Through the comprehensive analysis presented in this research report, it has been demonstrated that "Iceface Tuning," devised by H. Wakabayashi, has far surpassed the scope of the creator's personal experiments to establish a firm position as a critically important tuning system in the internet-based global microtonal community and contemporary music production environment.</p>
+
+        <p>From Chadwin's formal academic psychoacoustic analysis at the University of Huddersfield, to theoretical references and original compositional implementations by renowned xenharmonic composers such as Sevish and Evan Bennet, to archival in the global Scala-format database and spontaneous endorsements from communities such as Reddit &mdash; this series of facts eloquently testifies that this tuning system possesses multi-layered and enduring influence.</p>
+
+        <p>Iceface Tuning, through the elegantly simple and intuitive structural idea of "regularly quarter-tone-shifting only the black keys of 12-TET," has opened a practical breach in the solid wall of equal temperament that Western music had built over centuries. It represents the presentation of a new acoustic space where mathematical regularity and romantic nostalgia are brilliantly fused, distinct from random lo-fi-style detuning. Furthermore, given its open-source flexibility that accommodates conceptual extension into non-Western music (Maqam) and harmonic modifications by performers (such as preserving F#), it is concluded that Iceface Tuning will continue to function as an extremely powerful and universal paradigm in music theory, providing unknown inspiration to composers across all domains of pop, electronica, jazz, and contemporary music.</p>
+    </div>
+</section>
+
+<!-- References -->
+<div class="section-divider"></div>
+<section class="section content" id="references">
+    <div class="chapter-header fade-in">
+        <div class="chapter-number">References</div>
+        <h2 class="chapter-title">References</h2>
+    </div>
+
+    <div class="fade-in">
+        <ol class="references-list">
+            <li>Microtonal Moment Musicale 4: Iceface tuning &mdash; YouTube, accessed March 30, 2026, <a href="https://www.youtube.com/watch?v=KENE166neQw" target="_blank" rel="noopener">https://www.youtube.com/watch?v=KENE166neQw</a></li>
+            <li>Iceface 75cents sharper (Iceface Tuned Piano 75) #microtonal #xenharmonic &mdash; YouTube, accessed March 30, 2026, <a href="https://www.youtube.com/watch?v=O-by02QeST0" target="_blank" rel="noopener">https://www.youtube.com/watch?v=O-by02QeST0</a></li>
+            <li>Microtonal Toy Piano (iceface short film) microtonal &mdash; YouTube, accessed March 30, 2026, <a href="https://www.youtube.com/watch?v=eSEQHevh7_s" target="_blank" rel="noopener">https://www.youtube.com/watch?v=eSEQHevh7_s</a></li>
+            <li>Chadwin, D. J. (2019). <em>Applying microtonality to pop songwriting: A study of microtones in pop music</em>. Master's Thesis, University of Huddersfield. Accessed March 30, 2026, <a href="https://eprints.hud.ac.uk/id/eprint/34977/1/CHADWIN%20FINAL%20THESIS.pdf" target="_blank" rel="noopener">https://eprints.hud.ac.uk/id/eprint/34977/1/CHADWIN%20FINAL%20THESIS.pdf</a></li>
+            <li>Scales &mdash; Mizzan Microtonal Piano, accessed March 30, 2026, <a href="https://www.mizzan.de/scales" target="_blank" rel="noopener">https://www.mizzan.de/scales</a></li>
+            <li>Iceface Tuned Piano (Microtonal Piano Lucid Fairytale) &mdash; YouTube, accessed March 30, 2026, <a href="https://www.youtube.com/watch?v=vvDdMkyf6f8" target="_blank" rel="noopener">https://www.youtube.com/watch?v=vvDdMkyf6f8</a></li>
+            <li>Sevish. (2016). "9 Alternative Tunings NOT for Guitar." Accessed March 30, 2026, <a href="https://sevish.com/2016/9-alternative-tunings-not-for-guitar/" target="_blank" rel="noopener">https://sevish.com/2016/9-alternative-tunings-not-for-guitar/</a></li>
+            <li>Now and Xen Podcast, accessed March 30, 2026, <a href="https://nowandxen.libsyn.com/2020/06" target="_blank" rel="noopener">https://nowandxen.libsyn.com/2020/06</a></li>
+            <li>041 &mdash; Hidekazu Wakabayashi &mdash; Now and Xen &mdash; Apple Podcasts, accessed March 30, 2026, <a href="https://podcasts.apple.com/us/podcast/041-hidekazu-wakabayashi-%E5%BE%AE%E5%88%86%E9%9F%B3%E3%83%81%E3%83%A3%E3%83%B3%E3%83%8D%E3%83%AB/id1447552191?i=1000480929417" target="_blank" rel="noopener">Apple Podcasts</a></li>
+            <li>Sevish. (2016). "Sevish interview at Microtonal Diary." Accessed March 30, 2026, <a href="https://sevish.com/2016/sevish-interview-at-microtonal-diary/" target="_blank" rel="noopener">https://sevish.com/2016/sevish-interview-at-microtonal-diary/</a></li>
+            <li>Microtonal/Xenharmonic Archives &mdash; Page 6 of 11 &mdash; Sevish, accessed March 30, 2026, <a href="https://sevish.com/category/microtonal-music/page/6/" target="_blank" rel="noopener">https://sevish.com/category/microtonal-music/page/6/</a></li>
+            <li>Sevish Music Blog, accessed March 30, 2026, <a href="https://sevish.com/blog/page/7/" target="_blank" rel="noopener">https://sevish.com/blog/page/7/</a></li>
+            <li>Evan Bennet &mdash; YouTube, accessed March 30, 2026, <a href="https://www.youtube.com/@AnAmericanComposer/videos" target="_blank" rel="noopener">https://www.youtube.com/@AnAmericanComposer/videos</a></li>
+            <li>Rabbit Dissonance (4-17-22) &mdash; Altered Iceface tuning &mdash; YouTube, accessed March 30, 2026, <a href="https://www.youtube.com/watch?v=TearxvwMqsc" target="_blank" rel="noopener">https://www.youtube.com/watch?v=TearxvwMqsc</a></li>
+            <li>Audius &mdash; Free Music Streaming for Artists, Labels & Fans, accessed March 30, 2026, <a href="https://audius.co/PBartmess/rainoi-iceface-tuning" target="_blank" rel="noopener">https://audius.co/PBartmess/rainoi-iceface-tuning</a></li>
+            <li>Hidemi Akaiwa plays Iceface Tuning! (And me on drums) #microtonal &mdash; YouTube, accessed March 30, 2026, <a href="https://m.youtube.com/shorts/4kD4KgrvkYE" target="_blank" rel="noopener">https://m.youtube.com/shorts/4kD4KgrvkYE</a></li>
+            <li>Iceface H. Wakabayashi Microtonal Channel &mdash; YouTube, accessed March 30, 2026, <a href="https://www.youtube.com/@icefaceH/shorts" target="_blank" rel="noopener">https://www.youtube.com/@icefaceH/shorts</a></li>
+            <li>Microtonal synthesis : r/edmproduction, accessed March 30, 2026, <a href="https://www.reddit.com/r/edmproduction/comments/664eeb/microtonal_synthesis/" target="_blank" rel="noopener">https://www.reddit.com/r/edmproduction/comments/664eeb/microtonal_synthesis/</a></li>
+            <li>Not enough different genres in microtonal music? : r/microtonal, accessed March 30, 2026, <a href="https://www.reddit.com/r/microtonal/comments/kg0eum/not_enough_different_genres_in_microtonal_music/" target="_blank" rel="noopener">https://www.reddit.com/r/microtonal/comments/kg0eum/not_enough_different_genres_in_microtonal_music/</a></li>
+        </ol>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="footer-logo">ICEFACE TUNING Research</div>
+    <p>Reception History and Structural Development of "Iceface Tuning" in Contemporary Microtonal Space: A Scholarly and Artistic Evaluation from Third-Party Perspectives</p>
+</footer>
+
+<!-- Back to Top -->
+<a href="#top" class="back-to-top" id="backToTop" aria-label="Back to top">&uarr;</a>
+
+<script>
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    function toggleMenu() {
+        document.getElementById('navLinks').classList.toggle('open');
+    }
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+        link.addEventListener('click', () => {
+            document.getElementById('navLinks').classList.remove('open');
+        });
+    });
+
+    const backToTop = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+        backToTop.classList.toggle('visible', window.scrollY > 600);
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+            }
+        });
+    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a:not(.lang-switch)');
+
+    window.addEventListener('scroll', () => {
+        let current = '';
+        sections.forEach(section => {
+            const sectionTop = section.offsetTop - 100;
+            if (window.scrollY >= sectionTop) {
+                current = section.getAttribute('id');
+            }
+        });
+        navLinks.forEach(link => {
+            link.classList.remove('active');
+            if (link.getAttribute('href') === '#' + current) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+
+</body>
+</html>
